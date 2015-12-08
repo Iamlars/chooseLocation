@@ -1,0 +1,188 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>省市区选择</title>
+  <script type="text/javascript" src="jquery-1.11.3.js"></script>
+  <script type="text/javascript" src="select2.min.js"></script>
+  <script type="text/javascript" src="area.js"></script>
+  <link rel="stylesheet" href="select2.css" media="screen" title="no title" charset="utf-8">
+  <style media="screen">
+    *{margin:0;padding:0}
+    .select-group{
+      margin:10px auto;
+    }
+    select{
+      width:27%;
+      margin-right:3%;
+    }
+    h3{
+      line-height:30px;
+      font-weight:normal;
+    }
+  </style>
+</head>
+  <h3>只选择省份</h3>
+  <div class="select-group">
+    <select class="pro"></select>
+    <button type="button" name="button">获取值</button>
+  </div>
+  <h3>省市二级联动</h3>
+  <div class="select-group">
+    <select class="pro"></select>
+    <select class="city"></select>
+        <button type="button" name="button">获取值</button>
+  </div>
+  <h3>省市区三级联动</h3>
+  <div class="select-group">
+    <select class="pro"></select>
+    <select class="city"></select>
+    <select class="area"></select>
+        <button type="button" name="button">获取值</button>
+  </div>
+  <h3>带有默认值</h3>
+  <div class="select-group">
+    <select class="pro">
+      <option value="22"></option>
+    </select>
+    <select class="city"></select>
+    <select class="area"></select>
+        <button type="button" name="button">获取值</button>
+  </div>
+
+  <h3>应用select2</h3>
+  <div class="select-group select2-theme">
+    <select class="pro">
+      <option value="22"></option>
+    </select>
+    <select class="city"></select>
+    <select class="area"></select>
+        <button type="button" name="button">获取值</button>
+  </div>
+
+  <script type="text/javascript">
+
+    $(function(){
+
+      function ChooseLocation(obj){
+        this.pro = obj.find('.pro');
+        this.city = obj.find('.city');
+        this.area = obj.find('.area');
+
+        this.setPath();
+        this.init();
+        this.change();
+      }
+
+      ChooseLocation.prototype.allCitys = hotcity;
+
+      ChooseLocation.prototype.setPath = function(){
+        $.each(this.allCitys,function(i,n){
+          n.index = i;
+          $.each(n.citys,function(j,k){
+            k.index = i+'_'+j;
+          })
+        });
+      };
+      ChooseLocation.prototype.init = function(){
+          var pValue = this.pro.val(),
+              CValue = this.city.val(),
+              AValue = this.area.val();
+
+          this.showProv();
+          this.showCity();
+          this.showArea();
+
+          if(pValue){
+          	this.pro.find('option[value="'+pValue+'"]').attr('selected','selected');
+          	this.showCity();
+        	  this.showArea();
+          }
+          if(CValue){
+          	this.city.find('option[value="'+CValue+'"]').attr('selected','selected');
+        	  this.showArea();
+          }
+          if(AValue){
+          	this.area.find('option[value="'+AValue+'"]').attr('selected','selected');
+          }
+      };
+      ChooseLocation.prototype.change = function(){
+        var that = this;
+
+        this.pro.change(function(){
+          that.showCity();
+          that.showArea();
+        });
+
+        this.city.change(function(){
+       		that.showArea();
+        });
+
+      };
+      ChooseLocation.prototype.showProv = function(){
+        this.pro.html(this.buildOption(this.allCitys)).change();
+      };
+      ChooseLocation.prototype.showCity = function(){
+        if(!this.city.length){return}
+        var index = this.pro.find("option:selected").attr("index");
+        this.city.html(this.buildOption( this.allCitys[index].citys )).change();
+      };
+      ChooseLocation.prototype.showArea = function(){
+        if(!this.area.length){return}
+        var index = this.city.find("option:selected").attr("index").split('_'),
+            pid = index[0],
+            cid = index[1];
+        this.area.html(this.buildOption( this.allCitys[pid].citys[cid].countys )).change();
+      };
+      ChooseLocation.prototype.buildOption = function(array){
+        var html = '';
+        $.each(array,function(i,n){
+          html += '<option value="'+n.area_id+'" index="'+n.index+'">'+n.area_name+'</option>';
+        });
+        return html;
+      };
+
+
+
+      $.fn.chooseLocation = function(){
+          this.each(function(i,n){
+            new ChooseLocation($(n));
+          });
+      };
+
+      $('.select-group').chooseLocation();
+
+      $('.select2-theme select').select2({
+        minimumResultsForSearch: Infinity
+      });
+
+
+      // 展示选中的值
+
+      $('button').click(function(){
+        var selects= $(this).siblings('select');
+            value = (function(array){
+              array = [];
+              $.each(selects,function(i,n){
+                array.push(n.value);
+              });
+              return array;
+            }()),
+            html = (function(array){
+              array = [];
+              $.each(selects.find('option:selected'),function(i,n){
+                array.push($(n).html());
+              });
+              return array;
+            }());
+
+        alert('选中值:'+value+'  对应的汉字:'+html.join('-'));
+      });
+
+
+    });
+
+  </script>
+<body>
+</body>
+</html>
