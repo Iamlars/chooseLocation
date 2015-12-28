@@ -29,16 +29,16 @@
       this.showArea();
 
       if(pValue){
-        this.pro.find('option[value="'+pValue+'"]').attr('selected','selected');
+        this.pro.find('option[value="'+pValue+'"]').attr('selected','selected').change();
         this.showCity();
         this.showArea();
       }
       if(CValue){
-        this.city.find('option[value="'+CValue+'"]').attr('selected','selected');
+        this.city.find('option[value="'+CValue+'"]').attr('selected','selected').change();
         this.showArea();
       }
       if(AValue){
-        this.area.find('option[value="'+AValue+'"]').attr('selected','selected');
+        this.area.find('option[value="'+AValue+'"]').attr('selected','selected').change();
       }
   };
   ChooseLocation.prototype.change = function(){
